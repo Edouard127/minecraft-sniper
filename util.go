@@ -26,8 +26,7 @@ func nopanic(a ...any) {
 }
 
 func InvokeDNSEntry(host string) {
-	host = strings.TrimSuffix(strings.SplitAfterN(host, "/", 4)[2], "/")
-	nopanic(net.LookupHost(host))
+	nopanic(net.LookupHost(strings.TrimSuffix(strings.SplitAfterN(host, "/", 4)[2], "/")))
 }
 
 func CreateRequest(method, url string) (*http.Request, error) {
@@ -71,7 +70,7 @@ func GetLatency() time.Duration {
 	}
 	InvokeDNSEntry(MojangRequest("/"))
 
-	var highest time.Duration
+	var lowest time.Duration
 	var result httpstat.Result
 	ctx := httpstat.WithHTTPStat(req.Context(), &result)
 	req = req.WithContext(ctx)
@@ -79,11 +78,11 @@ func GetLatency() time.Duration {
 	for i := 0; i < 20; i++ {
 		http.DefaultClient.Do(req)
 		t := result.DNSLookup + result.TCPConnection + result.TLSHandshake + result.ServerProcessing
-		if t > highest {
-			highest = t
+		if t < lowest {
+			lowest = t
 		}
 	}
-	return highest
+	return lowest
 }
 
 func WaitUntil(ctx context.Context, at time.Time, latency time.Duration) {
