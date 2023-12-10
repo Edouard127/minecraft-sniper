@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/tcnksm/go-httpstat"
 	"net"
 	"net/http"
 	"strconv"
@@ -38,7 +37,6 @@ func Get(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	InvokeDNSEntry(url)
 	return http.DefaultClient.Do(req)
 }
 
@@ -68,7 +66,6 @@ func GetLatency() time.Duration {
 	if err != nil {
 		return 0
 	}
-	InvokeDNSEntry(MojangRequest("/"))
 
 	var lowest time.Duration
 	var result httpstat.Result
